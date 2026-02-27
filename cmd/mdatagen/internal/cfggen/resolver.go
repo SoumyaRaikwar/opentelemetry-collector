@@ -67,12 +67,28 @@ func transformDurationFormat(md *ConfigMetadata) {
 }
 
 func (r *Resolver) resolveSchema(root, current, target *ConfigMetadata, origin *Ref) error {
+	// Preserve custom properties defined on the referencing node
+	goType := current.GoType
+	isPointer := current.IsPointer
+	isOptional := current.IsOptional
+
 	if current.Ref != "" {
 		resolved, err := r.resolveRef(root, current, origin)
 		if err != nil {
 			return fmt.Errorf("failed to resolve $ref %q: %w", current.Ref, err)
 		}
 		current = resolved
+	}
+
+	// Restore custom properties if they were explicitly defined on the referrer
+	if goType != "" {
+		current.GoType = goType
+	}
+	if isPointer {
+		current.IsPointer = isPointer
+	}
+	if isOptional {
+		current.IsOptional = isOptional
 	}
 
 	transformDurationFormat(current)

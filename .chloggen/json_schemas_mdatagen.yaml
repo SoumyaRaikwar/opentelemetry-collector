@@ -4,18 +4,19 @@
 change_type: enhancement
 
 # The name of the component, or a single word describing the area of concern, (e.g. receiver/otlp)
-component: cmd/mdatagen
+component: mdatagen
 
 # A brief description of the change.  Surround your text with quotes ("") if it needs to start with a backtick (`).
-note: Extend mdatagen tool to generate config JSON schema for OpenTelemetry components.
+note: "Preserve custom schema extensions like `x-customType` during `mdatagen` `$ref` resolution."
 
 # One or more tracking issues or pull requests related to the change
-issues: [14543]
+issues: [14565]
 
 # (Optional) One or more lines of additional information to render under the primary note.
 # These lines will be padded with 2 spaces and then inserted directly into the document.
 # Use pipe (|) for multiline entries.
-subtext: The component config JSON schema is generated from `config` section of the metadata.yaml file.
+subtext: |
+  Fixes a bug where custom YAML schema keys such as `x-customType`, `x-pointer`, and `x-optional` defined locally alongside a `$ref` were previously overwritten and lost during schema resolution.
 
 # Optional: The change log or logs in which this entry should be included.
 # e.g. '[user]' or '[user, api]'
@@ -23,3 +24,4 @@ subtext: The component config JSON schema is generated from `config` section of 
 # Include 'api' if there is a change to a library API.
 # Default: '[user]'
 change_logs: [api]
+

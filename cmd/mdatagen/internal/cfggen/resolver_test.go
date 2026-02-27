@@ -833,3 +833,44 @@ func TestResolver_ResolveSchema_ContentSchema(t *testing.T) {
 	require.NotNil(t, result.Properties["body"].ContentSchema)
 	require.Equal(t, "object", result.Properties["body"].ContentSchema.Type)
 }
+
+func TestResolver_ResolveSchema_PreserveCustomExtensions(t *testing.T) {
+	resolver := &Resolver{
+		pkgID:  "go.opentelemetry.io/collector/test/component",
+		class:  "receiver",
+		name:   "test",
+		loader: NewLoader(""),
+	}
+
+	src := &ConfigMetadata{
+		Type: "object",
+		Properties: map[string]*ConfigMetadata{
+			"config": {
+				Ref:        "target_type",
+				GoType:     "my.custom.Type",
+				IsPointer:  true,
+				IsOptional: true,
+			},
+		},
+		Defs: map[string]*ConfigMetadata{
+			"target_type": {
+				Type:        "string",
+				Description: "Target type description",
+			},
+		},
+	}
+
+	result, err := resolver.ResolveSchema(src)
+	require.NoError(t, err)
+	require.Equal(t, "object", result.Type)
+
+	configProp := result.Properties["config"]
+	require.NotNil(t, configProp)
+	require.Equal(t, "string", configProp.Type)
+	require.Equal(t, "Target type description", configProp.Description)
+
+	// Ensure custom extensions are preserved
+	require.Equal(t, "my.custom.Type", configProp.GoType)
+	require.True(t, configProp.IsPointer)
+	require.True(t, configProp.IsOptional)
+}
